@@ -1,38 +1,19 @@
 FROM ubuntu:14.04
-MAINTAINER elprans@sprymix.com
+MAINTAINER zach@mavenclinic.com
 
-ENV APPDIR /srv/thumbor
-ENV THUMBOR_VERSION 4.4.1
-ENV THUMBOR_ENGINE graphicsmagick
-ENV GRAPHICSMAGICK_ENGINE_VERSION 0.1.1
-
-EXPOSE 8888
-
-VOLUME ["/etc/persistent-conf"]
 VOLUME ["/srv/thumbor/storage"]
-VOLUME ["/dev/log"]
 
-ENTRYPOINT ["/init"]
-CMD ["start"]
-
-RUN DEBIAN_FRONTEND=noninteractive \
-        apt-get update && apt-get install --no-install-recommends -y \
-            language-pack-en-base
-
-ENV LANG en_US.UTF-8
-
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
-                patch wget unzip python-dev python-pip \
+        python-pycurl python-pip python-dev python-numpy python-opencv wget webp libpng-dev libtiff-dev libjasper-dev libjpeg-dev \
         && apt-get clean
 
-RUN mkdir -p /setup
+# this is a hack but needed for some reason
+RUN pip install colour && cd /usr/local/lib/python2.7/dist-packages && wget https://raw.githubusercontent.com/vaab/colour/master/colour.py
+RUN pip install thumbor==4.4.1 opencv-engine
 
-ADD setup /setup
-RUN DEBIAN_FRONTEND=noninteractive \
-        /setup/install
+COPY thumbor.conf /etc/thumbor.conf
+COPY init /init
 
-ADD config /setup/config
-RUN DEBIAN_FRONTEND=noninteractive \
-        /setup/configure
-
-ADD init /init
+EXPOSE 80
+CMD ["/init"]
