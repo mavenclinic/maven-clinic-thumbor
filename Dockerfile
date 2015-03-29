@@ -1,10 +1,9 @@
-FROM ubuntu:14.04
+FROM debian:jessie
 MAINTAINER zach@mavenclinic.com
 
 VOLUME ["/srv/thumbor/storage"]
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
         python-pycurl python-pip python-dev python-numpy python-opencv wget webp libpng-dev libtiff-dev libjasper-dev libjpeg-dev \
         && apt-get clean
 
